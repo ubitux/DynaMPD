@@ -115,8 +115,9 @@ class Core(mpd.MPDClient):
         prev = (None, None)
         dynampd = DynaMPD(self)
         while True:
-            (state, elapsed) = (self.status()['state'], self.status()['time'].split(":")[0])
+            state = self.status()['state']
             if state == 'play':
+                elapsed = self.status()['time'].split(':')[0]
                 currentsong = self.currentsong()
                 (artist, title, duration) = (currentsong.get('artist'), currentsong.get('title'), currentsong.get('time').split(":")[0])
                 iwl = self._is_worth_listening(int(elapsed), int(duration))
