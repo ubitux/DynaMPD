@@ -108,14 +108,19 @@ class Core(mpd.MPDClient):
         opts, args = parser.parse_args()
         return (opts.host, opts.port, opts.password)
 
+    def _is_worth_listening(self, elapsed_time, total_time):
+        return (total_time - elapsed_time) < int(total_time * 0.8)
+
     def run(self):
         prev = (None, None)
         dynampd = DynaMPD(self)
         while True:
-            if self.status()['state'] == 'play':
+            (state, elapsed) = (self.status()['state'], self.status()['time'].split(":")[0])
+            if state == 'play':
                 currentsong = self.currentsong()
-                (artist, title) = (currentsong.get('artist'), currentsong.get('title'))
-                if artist and title and prev != (artist, title):
+                (artist, title, duration) = (currentsong.get('artist'), currentsong.get('title'), currentsong.get('time').split(":")[0])
+                iwl = self._is_worth_listening(int(elapsed), int(duration))
+                if artist and title and prev != (artist, title) and iwl:
                     prev = (artist, title)
                     for file in dynampd.get_a_selection(artist, title):
                         self.add(file)
