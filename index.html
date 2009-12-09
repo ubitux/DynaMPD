@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>DynaMPD</title>
+		<link rel="icon" type="image/png" href="favicon.png" />
+		<link rel="stylesheet" type="text/css" href="/common.css" />
+	</head>
+	<body>
+		<h1>DynaMPD</h1>
+		<p>
+			DynaMPD allows you to get a dynamic playlist with
+			<a href="http://mpd.wikia.com/">MPD</a>:
+			it adds to your current playlist some tracks related to
+			what you are currently listenning to. The similar
+			tracks request is done using the
+			<a href="http://www.last.fm/api">Last.fm API</a>
+			(no registration required).
+		</p>
+		<ul>
+			<li><a href="dynampd.py">Get dynaMPD 0.3.0</a> (9 Dec 2009)</li>
+			<li><a href="Changelog">View Changelog</a></li>
+		</ul>
+
+		<h2>Dependencies</h2>
+		<ul>
+			<li>python &gt;= 2.5</li>
+			<li>python-mpd</li>
+		</ul>
+
+		<h2>Usage</h2>
+<pre>
+% ./dynampd.py --help
+Usage: dynampd.py [options]
+
+Options:
+  -h, --help            show this help message and exit
+  -a HOST, --host=HOST  MPD host
+  -n PASSWORD, --password=PASSWORD
+                        MPD password
+  -p PORT, --port=PORT  MPD port
+  -q, --quiet           Quiet mode
+</pre>
+		<p>
+			All parameters are optionnals: if MPD is running on
+			localhost:6600 without password, you just have to
+			execute the script.
+		</p>
+
+		<h2>Contact developers</h2>
+		<p>
+			The best way to contact us is to use IRC:
+			#/dev/null@yozora-irc.net (ask for <i>ubitux</i> or <i>Amak</i>).
+		</p>
+
+		<h2>License</h2>
+		<p>
+			If you don't like us, feel free to do
+			<i>what the fuck you want to</i> with dynaMPD since it's under
+			<a href="http://sam.zoy.org/wtfpl/">WTFPL</a> license.
+		</p>
+
+		<h2>TODO ideas</h2>
+		<ul>
+			<li>Add config file</li>
+			<li>Add some random in selection</li>
+			<li>Do not add the <i>n</i> versions of a given track</li>
+		</ul>
+	</body>
+</html>
