@@ -34,7 +34,7 @@ class DynaMPD:
         playlist = self.mpd_client.playlist()
         selection = []
 
-        print(':: Search similar track [%s - %s]' % (playing_artist, playing_track))
+        self._log(':: Search similar track [%s - %s]' % (playing_artist, playing_track))
 
         doc = self._api_request({'method': 'track.getsimilar', 'artist': playing_artist, 'track': playing_track})
         for node in doc.getElementsByTagName('track'):
@@ -52,7 +52,7 @@ class DynaMPD:
             if file in playlist + selection:
                 continue
 
-            print('    --> %s' % file)
+            self._log('    --> %s' % file)
             selection.append(file)
             if len(selection) >= self.n_append:
                 break
@@ -70,17 +70,17 @@ class DynaMPD:
                 if not file:
                     continue
 
-                print('    --> %s' % file)
+                self._log('    --> %s' % file)
                 selection.append(file)
                 if len(selection) >= self.n_append:
                     break
 
-        print('')
+        self._log('')
         return selection
 
     def _api_request(self, data):
         url = self._api_root_url + '?api_key=' + self._api_key + '&' + urllib.urlencode(data)
-        print('   [LastFM] request: %s | url: %s' % (data['method'], url))
+        self._log('   [LastFM] request: %s | url: %s' % (data['method'], url))
         return xml.dom.minidom.parse(urllib.urlopen(url))
 
     def _get_best_track(self, artist, playlist, matching_files):
@@ -98,15 +98,20 @@ class DynaMPD:
                 return file
         return None
 
+    def _log(self, str):
+        if self.mpd_client.verbose: print str
+
+
 class Core(mpd.MPDClient):
 
     def _getopts(self):
         parser = optparse.OptionParser()
         parser.add_option('-a', '--host', dest='host', help='MPD host', default='localhost')
-        parser.add_option('-p', '--port', dest='port', type='int', help='MPD port', default=6600)
         parser.add_option('-n', '--password', dest='password', help='MPD password')
+        parser.add_option('-p', '--port', dest='port', type='int', help='MPD port', default=6600)
+        parser.add_option('-q', '--quiet', dest='verbose', action="store_false", help='Quiet mode', default=True)
         opts, args = parser.parse_args()
-        return (opts.host, opts.port, opts.password)
+        return (opts.host, opts.password, opts.port, opts.verbose)
 
     def _is_worth_listening(self, elapsed_time, total_time):
         return (total_time - elapsed_time) < int(total_time * 0.8)
@@ -129,7 +134,7 @@ class Core(mpd.MPDClient):
 
     def __init__(self):
         mpd.MPDClient.__init__(self)
-        host, port, password = self._getopts()
+        host, password, port, self.verbose = self._getopts()
         self.connect(host, port)
         if password:
             self.password(password)
