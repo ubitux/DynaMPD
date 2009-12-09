@@ -47,6 +47,31 @@ Options:
 			execute the script.
 		</p>
 
+		<h2>Example</h2>
+<pre>
+% ./dynampd.py
+:: Search similar track [Yuki Kajiura - To Find Your Flower]
+   [LastFM] request: track.getsimilar | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;track=To+Find+Your+Flower&amp;method=track.getsimilar&amp;artist=Yuki+Kajiura
+   [LastFM] request: artist.getsimilar | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;method=artist.getsimilar&amp;artist=Yuki+Kajiura
+   [LastFM] request: artist.getTopTracks | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;method=artist.getTopTracks&amp;artist=Kalafina
+    --&gt; Kalafina/2009 - Seventh Heaven/Kalafina - 02 - Seventh Heaven - oblivious.mp3
+   [LastFM] request: artist.getTopTracks | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;method=artist.getTopTracks&amp;artist=%E5%B2%A9%E5%B4%8E%E7%90%A2
+    --&gt; Unsorted_Music/Soundtracks/Gurren Lagann/天元突破グレンラガン ベストサウンド Soundtrack Disc/天元突破グレンラガン ベストサウンド Soundtrack Disc - 07 - Nikopol.mp3
+   [LastFM] request: artist.getTopTracks | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;method=artist.getTopTracks&amp;artist=Makino+Yui
+    --&gt; Soundtracks/NHK ni Youkoso! OST (Sunny Side ni Youkoso)/NHK ni Youkoso! OST (Sunny Side ni Youkoso) - 23 - Modokashii Sekai no Ue de -piano ver.-.mp3
+
+:: Search similar track [Kalafina - oblivious]
+   [LastFM] request: track.getsimilar | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&track=oblivious&amp;method=track.getsimilar&amp;artist=Kalafina
+    --&gt; Kalafina/2009 - Seventh Heaven/Kalafina - 06 - Seventh Heaven - ARIA.mp3
+    --&gt; Kalafina/2009 - Seventh Heaven/Kalafina - 12 - Seventh Heaven - sprinter.mp3
+    --&gt; Unsorted_Music/Soundtracks/Phantom ~Requiem for the Phantom~/Vol. 1/32 - KARMA (TV edit).mp3
+</pre>
+
+		<p>
+			Note that you will have to wait at least 20% of the
+			current song being played before you get something.
+		</p>
+
 		<h2>Contact developers</h2>
 		<p>
 			The best way to contact us is to use IRC:
