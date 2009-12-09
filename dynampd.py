@@ -18,7 +18,7 @@
 
 import mpd, optparse, sys, time, urllib, xml.dom.minidom
 
-__author__ = 'ubitux'
+__author__ = 'ubitux and Amak'
 __version__ = '0.3.0~dev'
 
 class DynaMPD:
