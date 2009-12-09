@@ -99,7 +99,8 @@ class DynaMPD:
         return None
 
     def _log(self, str):
-        if self.mpd_client.verbose: print str
+        if self.mpd_client.verbose:
+            print str
 
 
 class Core(mpd.MPDClient):
