@@ -120,18 +120,21 @@ class Core(mpd.MPDClient):
     def run(self):
         prev = (None, None)
         dynampd = DynaMPD(self)
-        while True:
-            state = self.status()['state']
-            if state == 'play':
-                elapsed = self.status()['time'].split(':')[0]
-                currentsong = self.currentsong()
-                (artist, title, duration) = (currentsong.get('artist'), currentsong.get('title'), currentsong.get('time').split(":")[0])
-                iwl = self._is_worth_listening(int(elapsed), int(duration))
-                if artist and title and prev != (artist, title) and iwl:
-                    prev = (artist, title)
-                    for file in dynampd.get_a_selection(artist, title):
-                        self.add(file)
-            time.sleep(5)
+        try:
+            while True:
+                state = self.status()['state']
+                if state == 'play':
+                    elapsed = self.status()['time'].split(':')[0]
+                    currentsong = self.currentsong()
+                    (artist, title, duration) = (currentsong.get('artist'), currentsong.get('title'), currentsong.get('time').split(":")[0])
+                    iwl = self._is_worth_listening(int(elapsed), int(duration))
+                    if artist and title and prev != (artist, title) and iwl:
+                        prev = (artist, title)
+                        for file in dynampd.get_a_selection(artist, title):
+                            self.add(file)
+                time.sleep(5)
+        except KeyboardInterrupt:
+            if self.verbose: print 'Dynampd %s is now quitting...' % (__version__ )
 
     def __init__(self):
         mpd.MPDClient.__init__(self)
