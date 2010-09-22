@@ -16,7 +16,7 @@
 #   0. You just DO WHAT THE FUCK YOU WANT TO.
 #
 
-import mpd, optparse, sys, time, urllib, xml.dom.minidom
+import mpd, optparse, time, urllib, xml.dom.minidom
 from xml.parsers.expat import ExpatError as ParseError
 
 __author__ = 'ubitux and Amak'
