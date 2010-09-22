@@ -141,8 +141,11 @@ class Core(mpd.MPDClient):
                     (artist, title, duration) = (currentsong.get('artist'), currentsong.get('title'), currentsong.get('time').split(":")[0])
                     if artist and title and prev != (artist, title) and is_worth_listening(int(elapsed), int(duration)):
                         prev = (artist, title)
-                        for fname in dynampd.get_a_selection(artist, title):
-                            self.add(fname)
+                        try:
+                            for fname in dynampd.get_a_selection(artist, title):
+                                self.add(fname)
+                        except DOMException:
+                            print 'Error: unable to parse Last.FM DOM. retry in 5 seconds'
                 time.sleep(5)
         except KeyboardInterrupt:
             if self.verbose:
