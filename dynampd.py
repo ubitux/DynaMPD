@@ -16,7 +16,7 @@
 #   0. You just DO WHAT THE FUCK YOU WANT TO.
 #
 
-import mpd, time, urllib, xml.dom.minidom, re
+import mpd, time, urllib, xml.dom.minidom, re, random
 from xml.parsers.expat import ExpatError as ParseError
 
 __author__ = 'ubitux and Amak'
@@ -26,6 +26,7 @@ class DynaMPD:
 
     _api_key = 'b25b959554ed76058ac220b7b2e0a026'
     _api_root_url = 'http://ws.audioscrobbler.com/2.0/'
+    _sim_scores = {'title': 4, 'artist': 1}
 
     def __init__(self, mpd_client):
         self.mpd_client = mpd_client
@@ -79,18 +80,39 @@ class DynaMPD:
 
         return sel_ok(selection)
 
+    def _get_similitude_score(self, artist, title):
+        cleanup_value = lambda v: re.sub(r'\([^)]*\)', '', v).strip().lower()
+        artist, title = cleanup_value(artist), cleanup_value(title)
+        plinfo = self.mpd_client.playlistinfo()
+        sim = 0
+        for song in plinfo:
+            if not 'artist' in song or not 'title' in song:
+                continue
+            tmp_artist, tmp_title = cleanup_value(song['artist']), cleanup_value(song['title'])
+            if tmp_artist in artist or artist in tmp_artist:
+                sim += self._sim_scores['artist']
+            if title in tmp_title or tmp_title in title:
+                sim += self._sim_scores['title']
+        return sim
+
     def _add_one_song_to_selection(self, songs, playlist, selection):
         sel_len = len(selection)
         if not songs:
             return sel_len
         for song in songs:
+            artist = song.get('artist')
+            title = song.get('title')
             fname = song['file']
-            if fname not in playlist + selection:
-
-
-                self._log('    → %s' % fname)
-                selection.append(fname)
-                return sel_len + 1
+            if not artist or not title or fname in playlist + selection:
+                continue
+            score = self._get_similitude_score(artist, title)
+            min_score = sum(self._sim_scores.values())
+            max_score = min_score * 3
+            if score > random.randint(min_score, max_score):
+                continue
+            self._log('    → %s' % fname)
+            selection.append(fname)
+            return sel_len + 1
         return sel_len
 
     def _api_request(self, data):
