@@ -16,7 +16,7 @@
 #   0. You just DO WHAT THE FUCK YOU WANT TO.
 #
 
-import mpd, optparse, time, urllib, xml.dom.minidom
+import mpd, optparse, time, urllib, xml.dom.minidom, re
 from xml.parsers.expat import ExpatError as ParseError
 
 __author__ = 'ubitux and Amak'
@@ -36,6 +36,9 @@ class DynaMPD:
         def sel_ok(selection):
             self._log('')
             return selection
+
+        def split_artists(artists):
+            return [artists] + [a.strip() for a in re.split(r'(?i),|feat[^ ]*|&', artists)]
 
         playlist = self.mpd_client.playlist()
         selection = []
@@ -58,20 +61,21 @@ class DynaMPD:
             if self._add_one_song_to_selection(songs, playlist, selection) >= self._max_selection_len:
                 return sel_ok(selection)
 
-        doc = self._api_request({'method': 'artist.getsimilar', 'artist': playing_artist})
-        for node in doc.getElementsByTagName('artist'):
-            artist = node.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
+        for sub_artist in split_artists(playing_artist):
+            doc = self._api_request({'method': 'artist.getsimilar', 'artist': sub_artist})
+            for node in doc.getElementsByTagName('artist'):
+                artist = node.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
 
-            if not self.mpd_client.search('artist', artist):
-                self._log('No artist matching [%s] in database' % artist)
-                continue
+                if not self.mpd_client.search('artist', artist):
+                    self._log('No artist matching [%s] in database' % artist)
+                    continue
 
-            doc_toptracks = self._api_request({'method': 'artist.getTopTracks', 'artist': artist})
-            track = doc_toptracks.getElementsByTagName('track')[0]
-            title = track.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
-            songs = self.mpd_client.search('artist', artist, 'title', title)
-            if self._add_one_song_to_selection(songs, playlist, selection) >= self._max_selection_len:
-                return sel_ok(selection)
+                doc_toptracks = self._api_request({'method': 'artist.getTopTracks', 'artist': artist})
+                track = doc_toptracks.getElementsByTagName('track')[0]
+                title = track.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
+                songs = self.mpd_client.search('artist', artist, 'title', title)
+                if self._add_one_song_to_selection(songs, playlist, selection) >= self._max_selection_len:
+                    return sel_ok(selection)
 
         return sel_ok(selection)
 
