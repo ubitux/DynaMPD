@@ -126,6 +126,10 @@ class Core(mpd.MPDClient):
             self.password(password)
 
     def run(self):
+
+        def is_worth_listening(elapsed_time, total_time):
+            return (total_time - elapsed_time) < int(total_time * 0.8)
+
         prev = (None, None)
         dynampd = DynaMPD(self)
         try:
@@ -135,8 +139,7 @@ class Core(mpd.MPDClient):
                     elapsed = self.status()['time'].split(':')[0]
                     currentsong = self.currentsong()
                     (artist, title, duration) = (currentsong.get('artist'), currentsong.get('title'), currentsong.get('time').split(":")[0])
-                    iwl = self._is_worth_listening(int(elapsed), int(duration))
-                    if artist and title and prev != (artist, title) and iwl:
+                    if artist and title and prev != (artist, title) and is_worth_listening(int(elapsed), int(duration)):
                         prev = (artist, title)
                         for fname in dynampd.get_a_selection(artist, title):
                             self.add(fname)
@@ -145,8 +148,6 @@ class Core(mpd.MPDClient):
             if self.verbose:
                 print 'Dynampd %s is now quitting...' % (__version__ )
 
-    def _is_worth_listening(self, elapsed_time, total_time):
-        return (total_time - elapsed_time) < int(total_time * 0.8)
 
 if __name__ == '__main__':
     Core().run()
