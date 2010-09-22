@@ -48,12 +48,12 @@ class DynaMPD:
             if not files:
                 continue
 
-            file = files[0]['file']
-            if file in playlist + selection:
+            fname = files[0]['file']
+            if fname in playlist + selection:
                 continue
 
-            self._log('    --> %s' % file)
-            selection.append(file)
+            self._log('    --> %s' % fname)
+            selection.append(fname)
             if len(selection) >= self.n_append:
                 break
 
@@ -126,8 +126,8 @@ class Core(mpd.MPDClient):
                     iwl = self._is_worth_listening(int(elapsed), int(duration))
                     if artist and title and prev != (artist, title) and iwl:
                         prev = (artist, title)
-                        for file in dynampd.get_a_selection(artist, title):
-                            self.add(file)
+                        for fname in dynampd.get_a_selection(artist, title):
+                            self.add(fname)
                 time.sleep(5)
         except KeyboardInterrupt:
             if self.verbose: print 'Dynampd %s is now quitting...' % (__version__ )
