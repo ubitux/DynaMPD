@@ -17,6 +17,7 @@
 #
 
 import mpd, optparse, sys, time, urllib, xml.dom.minidom
+from xml.parsers.expat import ExpatError as ParseError
 
 __author__ = 'ubitux and Amak'
 __version__ = '0.4.0~dev'
@@ -144,7 +145,7 @@ class Core(mpd.MPDClient):
                         try:
                             for fname in dynampd.get_a_selection(artist, title):
                                 self.add(fname)
-                        except DOMException:
+                        except ParseError:
                             print 'Error: unable to parse Last.FM DOM. retry in 5 seconds'
                 time.sleep(5)
         except KeyboardInterrupt:
