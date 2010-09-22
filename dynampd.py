@@ -106,17 +106,12 @@ class DynaMPD:
 
 class Core(mpd.MPDClient):
 
-    def _getopts(self):
-        parser = optparse.OptionParser()
-        parser.add_option('-a', '--host', dest='host', help='MPD host', default='localhost')
-        parser.add_option('-n', '--password', dest='password', help='MPD password')
-        parser.add_option('-p', '--port', dest='port', type='int', help='MPD port', default=6600)
-        parser.add_option('-q', '--quiet', dest='verbose', action="store_false", help='Quiet mode', default=True)
-        opts, args = parser.parse_args()
-        return (opts.host, opts.password, opts.port, opts.verbose)
-
-    def _is_worth_listening(self, elapsed_time, total_time):
-        return (total_time - elapsed_time) < int(total_time * 0.8)
+    def __init__(self):
+        mpd.MPDClient.__init__(self)
+        host, password, port, self.verbose = self._getopts()
+        self.connect(host, port)
+        if password:
+            self.password(password)
 
     def run(self):
         prev = (None, None)
@@ -137,12 +132,17 @@ class Core(mpd.MPDClient):
         except KeyboardInterrupt:
             if self.verbose: print 'Dynampd %s is now quitting...' % (__version__ )
 
-    def __init__(self):
-        mpd.MPDClient.__init__(self)
-        host, password, port, self.verbose = self._getopts()
-        self.connect(host, port)
-        if password:
-            self.password(password)
+    def _getopts(self):
+        parser = optparse.OptionParser()
+        parser.add_option('-a', '--host', dest='host', help='MPD host', default='localhost')
+        parser.add_option('-n', '--password', dest='password', help='MPD password')
+        parser.add_option('-p', '--port', dest='port', type='int', help='MPD port', default=6600)
+        parser.add_option('-q', '--quiet', dest='verbose', action="store_false", help='Quiet mode', default=True)
+        opts, args = parser.parse_args()
+        return (opts.host, opts.password, opts.port, opts.verbose)
+
+    def _is_worth_listening(self, elapsed_time, total_time):
+        return (total_time - elapsed_time) < int(total_time * 0.8)
 
 if __name__ == '__main__':
     c = Core()
