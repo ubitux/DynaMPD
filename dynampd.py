@@ -26,12 +26,17 @@ class DynaMPD:
 
     _api_key = 'b25b959554ed76058ac220b7b2e0a026'
     _api_root_url = 'http://ws.audioscrobbler.com/2.0/'
+    _max_selection_len = 3
 
     def __init__(self, mpd_client):
         self.mpd_client = mpd_client
-        self.n_append = 3
 
     def get_a_selection(self, playing_artist, playing_track):
+
+        def sel_ok(selection):
+            self._log('')
+            return selection
+
         playlist = self.mpd_client.playlist()
         selection = []
 
@@ -39,68 +44,53 @@ class DynaMPD:
 
         doc = self._api_request({'method': 'track.getsimilar', 'artist': playing_artist, 'track': playing_track})
         for node in doc.getElementsByTagName('track'):
+
+            title, artist = None, None
             for name in node.getElementsByTagName('name'):
                 if name.parentNode == node:
                     title = name.firstChild.data.encode('utf-8', 'ignore')
                 else:
                     artist = name.firstChild.data.encode('utf-8', 'ignore')
-
-            files = self.mpd_client.search('artist', artist, 'title', title)
-            if not files:
+            if None in (title, artist):
                 continue
 
-            fname = files[0]['file']
-            if fname in playlist + selection:
+            songs = self.mpd_client.search('artist', artist, 'title', title)
+            if self._add_one_song_to_selection(songs, playlist, selection) >= self._max_selection_len:
+                return sel_ok(selection)
+
+        doc = self._api_request({'method': 'artist.getsimilar', 'artist': playing_artist})
+        for node in doc.getElementsByTagName('artist'):
+            artist = node.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
+
+            if not self.mpd_client.search('artist', artist):
+                self._log('No artist matching [%s] in database' % artist)
                 continue
 
-            self._log('    --> %s' % fname)
-            selection.append(fname)
-            if len(selection) >= self.n_append:
-                break
+            doc_toptracks = self._api_request({'method': 'artist.getTopTracks', 'artist': artist})
+            track = doc_toptracks.getElementsByTagName('track')[0]
+            title = track.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
+            songs = self.mpd_client.search('artist', artist, 'title', title)
+            if self._add_one_song_to_selection(songs, playlist, selection) >= self._max_selection_len:
+                return sel_ok(selection)
 
-        if not selection:
-            doc = self._api_request({'method': 'artist.getsimilar', 'artist': playing_artist})
-            for node in doc.getElementsByTagName('artist'):
-                artist = node.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
+        return sel_ok(selection)
 
-                files = self.mpd_client.search('artist', artist)
-                if not files:
-                    continue
-
-                fname = self._get_best_track(artist, playlist + selection, files)
-                if not fname:
-                    continue
-
-                self._log('    --> %s' % fname)
+    def _add_one_song_to_selection(self, songs, playlist, selection):
+        sel_len = len(selection)
+        if not songs:
+            return sel_len
+        for song in songs:
+            fname = song['file']
+            if fname not in playlist + selection:
+                self._log('    → %s' % fname)
                 selection.append(fname)
-                if len(selection) >= self.n_append:
-                    break
-
-        self._log('')
-        return selection
+                return sel_len + 1
+        return sel_len
 
     def _api_request(self, data):
         url = self._api_root_url + '?api_key=' + self._api_key + '&' + urllib.urlencode(data)
         self._log('   [LastFM] request: %s | url: %s' % (data['method'], url))
         return xml.dom.minidom.parse(urllib.urlopen(url))
-
-    def _get_best_track(self, artist, playlist, matching_files):
-
-        def get_first_file_not_in_set(files_set):
-            for song in files_set:
-                fname = song['file']
-                if fname not in playlist:
-                    return fname
-            return None
-
-        doc = self._api_request({'method': 'artist.getTopTracks', 'artist': artist})
-        for track in doc.getElementsByTagName('track'):
-            title = track.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
-            files = self.mpd_client.search('artist', artist, 'title', title)
-            fname = get_first_file_not_in_set(files)
-            if fname:
-                return fname
-        return get_first_file_not_in_set(matching_files)
 
     def _log(self, msg):
         if self.mpd_client.verbose:
