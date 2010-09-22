@@ -99,9 +99,9 @@ class DynaMPD:
                 return fname
         return get_first_file_not_in_set(matching_files)
 
-    def _log(self, str):
+    def _log(self, msg):
         if self.mpd_client.verbose:
-            print str
+            print msg
 
 
 class Core(mpd.MPDClient):
