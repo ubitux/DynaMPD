@@ -16,7 +16,7 @@
 #   0. You just DO WHAT THE FUCK YOU WANT TO.
 #
 
-import mpd, optparse, time, urllib, xml.dom.minidom, re
+import mpd, time, urllib, xml.dom.minidom, re
 from xml.parsers.expat import ExpatError as ParseError
 
 __author__ = 'ubitux and Amak'
@@ -102,14 +102,28 @@ class DynaMPD:
 
 class Core(mpd.MPDClient):
 
+    _config_file = '~/.config/dynampd.conf'
+
     def __init__(self):
 
         def getopts():
+            import os, optparse, ConfigParser
+            from StringIO import StringIO
+
+            config = ConfigParser.RawConfigParser()
+            cfile = open(os.path.expanduser(self._config_file), 'r')
+            config.readfp(StringIO('[s]\n' + cfile.read()))
+            cfg_host  = config.get('s', 'host')         if config.has_option('s', 'host')       else 'localhost'
+            cfg_pass  = config.get('s', 'password')     if config.has_option('s', 'password')   else None
+            cfg_port  = config.getint('s', 'port')      if config.has_option('s', 'port')       else 6600
+            cfg_quiet = config.getboolean('s', 'quiet') if config.has_option('s', 'quiet')      else False
+            cfile.close()
+
             parser = optparse.OptionParser()
-            parser.add_option('-a', '--host', dest='host', help='MPD host', default='localhost')
-            parser.add_option('-n', '--password', dest='password', help='MPD password')
-            parser.add_option('-p', '--port', dest='port', type='int', help='MPD port', default=6600)
-            parser.add_option('-q', '--quiet', dest='verbose', action="store_false", help='Quiet mode', default=True)
+            parser.add_option('-a', '--host', dest='host', help='MPD host', default=cfg_host)
+            parser.add_option('-n', '--password', dest='password', help='MPD password', default=cfg_pass)
+            parser.add_option('-p', '--port', dest='port', type='int', help='MPD port', default=cfg_port)
+            parser.add_option('-q', '--quiet', dest='verbose', action="store_false", help='Quiet mode', default=(not cfg_quiet))
             opts, _ = parser.parse_args()
             return (opts.host, opts.password, opts.port, opts.verbose)
 
