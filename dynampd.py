@@ -85,8 +85,8 @@ class DynaMPD:
 
     def _get_best_track(self, artist, playlist, matching_files):
         def get_first_file_not_in_set(files_set):
-            for f in files:
-                fname = f['file']
+            for song in files:
+                fname = song['file']
                 if fname not in playlist:
                     return fname
             return None
