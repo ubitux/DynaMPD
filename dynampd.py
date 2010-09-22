@@ -86,6 +86,8 @@ class DynaMPD:
         for song in songs:
             fname = song['file']
             if fname not in playlist + selection:
+
+
                 self._log('    → %s' % fname)
                 selection.append(fname)
                 return sel_len + 1
@@ -118,6 +120,7 @@ class Core(mpd.MPDClient):
             cfg_port  = config.getint('s', 'port')      if config.has_option('s', 'port')       else 6600
             cfg_quiet = config.getboolean('s', 'quiet') if config.has_option('s', 'quiet')      else False
             cfg_msong = config.getint('s', 'max_songs') if config.has_option('s', 'max_songs')  else 3
+            cfg_wait  = config.getint('s', 'wait')      if config.has_option('s', 'wait')       else 20
             cfile.close()
 
             parser = optparse.OptionParser()
@@ -126,11 +129,12 @@ class Core(mpd.MPDClient):
             parser.add_option('-p', '--port', dest='port', type='int', help='MPD port', default=cfg_port)
             parser.add_option('-q', '--quiet', dest='verbose', action="store_false", help='Quiet mode', default=(not cfg_quiet))
             parser.add_option('-m', '--max-songs', dest='max_songs', type='int', help='Maximum songs to append each time', default=cfg_msong)
+            parser.add_option('-w', '--wait', dest='wait', type='int', help='Percent of current song length to wait before requesting new songs', default=cfg_wait)
             opts, _ = parser.parse_args()
-            return (opts.host, opts.password, opts.port, opts.verbose, opts.max_songs)
+            return (opts.host, opts.password, opts.port, opts.verbose, opts.max_songs, opts.wait)
 
         mpd.MPDClient.__init__(self)
-        host, password, port, self.verbose, self.max_songs = getopts()
+        host, password, port, self.verbose, self.max_songs, self.wait = getopts()
         self.connect(host, port)
         if password:
             self.password(password)
@@ -138,7 +142,7 @@ class Core(mpd.MPDClient):
     def run(self):
 
         def is_worth_listening(elapsed_time, total_time):
-            return (total_time - elapsed_time) < int(total_time * 0.8)
+            return (total_time - elapsed_time) < int(total_time * (100 - self.wait) / 100.)
 
         prev = (None, None)
         dynampd = DynaMPD(self)
