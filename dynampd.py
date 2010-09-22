@@ -138,7 +138,7 @@ class Core(mpd.MPDClient):
         parser.add_option('-n', '--password', dest='password', help='MPD password')
         parser.add_option('-p', '--port', dest='port', type='int', help='MPD port', default=6600)
         parser.add_option('-q', '--quiet', dest='verbose', action="store_false", help='Quiet mode', default=True)
-        opts, args = parser.parse_args()
+        opts, _ = parser.parse_args()
         return (opts.host, opts.password, opts.port, opts.verbose)
 
     def _is_worth_listening(self, elapsed_time, total_time):
