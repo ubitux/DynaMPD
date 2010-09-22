@@ -84,19 +84,20 @@ class DynaMPD:
         return xml.dom.minidom.parse(urllib.urlopen(url))
 
     def _get_best_track(self, artist, playlist, matching_files):
+        def get_first_file_not_in_set(files_set):
+            for f in files:
+                fname = f['file']
+                if fname not in playlist:
+                    return fname
+            return None
         doc = self._api_request({'method': 'artist.getTopTracks', 'artist': artist})
         for track in doc.getElementsByTagName('track'):
             title = track.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
             files = self.mpd_client.search('artist', artist, 'title', title)
-            for f in files:
-                file = f['file']
-                if file not in playlist:
-                    return file
-        for f in matching_files:
-            file = f['file']
-            if file not in playlist:
-                return file
-        return None
+            fname = get_first_file_not_in_set(files)
+            if fname:
+                return fname
+        return get_first_file_not_in_set(matching_files)
 
     def _log(self, str):
         if self.mpd_client.verbose:
