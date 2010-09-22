@@ -26,10 +26,10 @@ class DynaMPD:
 
     _api_key = 'b25b959554ed76058ac220b7b2e0a026'
     _api_root_url = 'http://ws.audioscrobbler.com/2.0/'
-    _max_selection_len = 3
 
     def __init__(self, mpd_client):
         self.mpd_client = mpd_client
+        self.max_selection_len = mpd_client.max_songs
 
     def get_a_selection(self, playing_artist, playing_track):
 
@@ -58,7 +58,7 @@ class DynaMPD:
                 continue
 
             songs = self.mpd_client.search('artist', artist, 'title', title)
-            if self._add_one_song_to_selection(songs, playlist, selection) >= self._max_selection_len:
+            if self._add_one_song_to_selection(songs, playlist, selection) >= self.max_selection_len:
                 return sel_ok(selection)
 
         for sub_artist in split_artists(playing_artist):
@@ -74,7 +74,7 @@ class DynaMPD:
                 track = doc_toptracks.getElementsByTagName('track')[0]
                 title = track.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
                 songs = self.mpd_client.search('artist', artist, 'title', title)
-                if self._add_one_song_to_selection(songs, playlist, selection) >= self._max_selection_len:
+                if self._add_one_song_to_selection(songs, playlist, selection) >= self.max_selection_len:
                     return sel_ok(selection)
 
         return sel_ok(selection)
@@ -117,6 +117,7 @@ class Core(mpd.MPDClient):
             cfg_pass  = config.get('s', 'password')     if config.has_option('s', 'password')   else None
             cfg_port  = config.getint('s', 'port')      if config.has_option('s', 'port')       else 6600
             cfg_quiet = config.getboolean('s', 'quiet') if config.has_option('s', 'quiet')      else False
+            cfg_msong = config.getint('s', 'max_songs') if config.has_option('s', 'max_songs')  else 3
             cfile.close()
 
             parser = optparse.OptionParser()
@@ -124,11 +125,12 @@ class Core(mpd.MPDClient):
             parser.add_option('-n', '--password', dest='password', help='MPD password', default=cfg_pass)
             parser.add_option('-p', '--port', dest='port', type='int', help='MPD port', default=cfg_port)
             parser.add_option('-q', '--quiet', dest='verbose', action="store_false", help='Quiet mode', default=(not cfg_quiet))
+            parser.add_option('-m', '--max-songs', dest='max_songs', type='int', help='Maximum songs to append each time', default=cfg_msong)
             opts, _ = parser.parse_args()
-            return (opts.host, opts.password, opts.port, opts.verbose)
+            return (opts.host, opts.password, opts.port, opts.verbose, opts.max_songs)
 
         mpd.MPDClient.__init__(self)
-        host, password, port, self.verbose = getopts()
+        host, password, port, self.verbose, self.max_songs = getopts()
         self.connect(host, port)
         if password:
             self.password(password)
