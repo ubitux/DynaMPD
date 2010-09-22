@@ -130,7 +130,8 @@ class Core(mpd.MPDClient):
                             self.add(fname)
                 time.sleep(5)
         except KeyboardInterrupt:
-            if self.verbose: print 'Dynampd %s is now quitting...' % (__version__ )
+            if self.verbose:
+                print 'Dynampd %s is now quitting...' % (__version__ )
 
     def _getopts(self):
         parser = optparse.OptionParser()
