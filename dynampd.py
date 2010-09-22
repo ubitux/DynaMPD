@@ -100,7 +100,6 @@ class DynaMPD:
         if self.mpd_client.verbose:
             print msg
 
-
 class Core(mpd.MPDClient):
 
     def __init__(self):
@@ -146,7 +145,6 @@ class Core(mpd.MPDClient):
         except KeyboardInterrupt:
             if self.verbose:
                 print 'Dynampd %s is now quitting...' % (__version__ )
-
 
 if __name__ == '__main__':
     Core().run()
