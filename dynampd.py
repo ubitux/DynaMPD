@@ -145,5 +145,4 @@ class Core(mpd.MPDClient):
         return (total_time - elapsed_time) < int(total_time * 0.8)
 
 if __name__ == '__main__':
-    c = Core()
-    c.run()
+    Core().run()
