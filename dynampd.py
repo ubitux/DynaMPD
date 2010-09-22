@@ -66,12 +66,12 @@ class DynaMPD:
                 if not files:
                     continue
 
-                file = self._get_best_track(artist, playlist + selection, files)
-                if not file:
+                fname = self._get_best_track(artist, playlist + selection, files)
+                if not fname:
                     continue
 
-                self._log('    --> %s' % file)
-                selection.append(file)
+                self._log('    --> %s' % fname)
+                selection.append(fname)
                 if len(selection) >= self.n_append:
                     break
 
