@@ -44,6 +44,9 @@ class DynaMPD:
         playlist = self.mpd_client.playlist()
         selection = []
 
+        if isinstance(playing_artist, list):
+            playing_artist = ', '.join(playing_artist)
+
         self._log(':: Search similar track [%s - %s]' % (playing_artist, playing_track))
 
         doc = self._api_request({'method': 'track.getsimilar', 'artist': playing_artist, 'track': self._cleanup_track_title(playing_track)})
@@ -84,13 +87,18 @@ class DynaMPD:
         return re.sub(r'\([^)]*\)', '', title).strip().lower()
 
     def _get_similitude_score(self, artist, title):
-        artist, title = artist.lower(), self._cleanup_track_title(title)
+
+        def simplify_artists(artist):
+            return ', '.join((a.lower() for a in artist)) if isinstance(artist, list) else artist.lower()
+
+        artist = simplify_artists(artist)
+        title = self._cleanup_track_title(title)
         plinfo = self.mpd_client.playlistinfo()
         sim = 0
         for song in plinfo:
             if not 'artist' in song or not 'title' in song:
                 continue
-            tmp_artist = song['artist'].lower()
+            tmp_artist = simplify_artists(song['artist'])
             tmp_title = self._cleanup_track_title(song['title'])
             if tmp_artist in artist or artist in tmp_artist:
                 sim += self._sim_scores['artist']
