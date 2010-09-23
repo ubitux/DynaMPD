@@ -138,15 +138,19 @@ class Core(mpd.MPDClient):
             from StringIO import StringIO
 
             config = ConfigParser.RawConfigParser()
-            cfile = open(os.path.expanduser(self._config_file), 'r')
-            config.readfp(StringIO('[s]\n' + cfile.read()))
+            try:
+                cfile = open(os.path.expanduser(self._config_file), 'r')
+                config.readfp(StringIO('[s]\n' + cfile.read()))
+            except IOError:
+                cfile = None
             cfg_host  = config.get('s', 'host')         if config.has_option('s', 'host')       else 'localhost'
             cfg_pass  = config.get('s', 'password')     if config.has_option('s', 'password')   else None
             cfg_port  = config.getint('s', 'port')      if config.has_option('s', 'port')       else 6600
             cfg_quiet = config.getboolean('s', 'quiet') if config.has_option('s', 'quiet')      else False
             cfg_msong = config.getint('s', 'max_songs') if config.has_option('s', 'max_songs')  else 3
             cfg_wait  = config.getint('s', 'wait')      if config.has_option('s', 'wait')       else 20
-            cfile.close()
+            if cfile:
+                cfile.close()
 
             parser = optparse.OptionParser()
             parser.add_option('-a', '--host', dest='host', help='MPD host', default=cfg_host)
