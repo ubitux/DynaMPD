@@ -46,7 +46,7 @@ class DynaMPD:
 
         self._log(':: Search similar track [%s - %s]' % (playing_artist, playing_track))
 
-        doc = self._api_request({'method': 'track.getsimilar', 'artist': playing_artist, 'track': playing_track})
+        doc = self._api_request({'method': 'track.getsimilar', 'artist': playing_artist, 'track': self._cleanup_track_title(playing_track)})
         for node in doc.getElementsByTagName('track'):
 
             title, artist = None, None
@@ -80,15 +80,18 @@ class DynaMPD:
 
         return sel_ok(selection)
 
+    def _cleanup_track_title(self, title):
+        return re.sub(r'\([^)]*\)', '', title).strip().lower()
+
     def _get_similitude_score(self, artist, title):
-        cleanup_value = lambda v: re.sub(r'\([^)]*\)', '', v).strip().lower()
-        artist, title = cleanup_value(artist), cleanup_value(title)
+        artist, title = artist.lower(), self._cleanup_track_title(title)
         plinfo = self.mpd_client.playlistinfo()
         sim = 0
         for song in plinfo:
             if not 'artist' in song or not 'title' in song:
                 continue
-            tmp_artist, tmp_title = cleanup_value(song['artist']), cleanup_value(song['title'])
+            tmp_artist = song['artist'].lower()
+            tmp_title = self._cleanup_track_title(song['title'])
             if tmp_artist in artist or artist in tmp_artist:
                 sim += self._sim_scores['artist']
             if title in tmp_title or tmp_title in title:
