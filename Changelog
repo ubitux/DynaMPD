@@ -1,3 +1,7 @@
+Version 1.0.1	23 Sep 2010
+
+	* Fix traceback when missing config file
+
 Version 1.0.0	23 Sep 2010
 
 	* Redesign track selection
