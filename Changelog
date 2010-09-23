@@ -1,3 +1,11 @@
+Version 1.0.0	23 Sep 2010
+
+	* Redesign track selection
+	* Reduce similitude probability
+	* Handle some previously uncatched exceptions
+	* Two new options: --max-songs and --wait
+	* Code cleanup
+
 Version 0.3.0	9 Dec 2009
 
 	* Add a quiet mode.

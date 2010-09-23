@@ -20,7 +20,7 @@ import mpd, time, urllib, xml.dom.minidom, re, random
 from xml.parsers.expat import ExpatError as ParseError
 
 __author__ = 'ubitux and Amak'
-__version__ = '0.4.0~dev'
+__version__ = '1.0.0'
 
 class DynaMPD:
 

@@ -18,13 +18,13 @@
 			(no registration required).
 		</p>
 		<ul>
-			<li><a href="dynampd.py">Get dynaMPD 0.3.0</a> (9 Dec 2009)</li>
+			<li><a href="dynampd.py">Get dynaMPD 1.0.0</a> (23 Sep 2010)</li>
 			<li><a href="Changelog">View Changelog</a></li>
 		</ul>
 
 		<h2>Dependencies</h2>
 		<ul>
-			<li>python &gt;= 2.5</li>
+			<li>python &gt;= 2.6</li>
 			<li>python-mpd</li>
 		</ul>
 
@@ -40,6 +40,10 @@ Options:
                         MPD password
   -p PORT, --port=PORT  MPD port
   -q, --quiet           Quiet mode
+  -m MAX_SONGS, --max-songs=MAX_SONGS
+                        Maximum songs to append each time
+  -w WAIT, --wait=WAIT  Percent of current song length to wait before
+                        requesting new songs
 </pre>
 		<p>
 			All parameters are optional: if MPD is running on
@@ -47,32 +51,26 @@ Options:
 			execute the script.
 		</p>
 
-		<h2>Example</h2>
-<pre>
-% ./dynampd.py
-:: Search similar track [Yuki Kajiura - To Find Your Flower]
-   [LastFM] request: track.getsimilar | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;track=To+Find+Your+Flower&amp;method=track.getsimilar&amp;artist=Yuki+Kajiura
-   [LastFM] request: artist.getsimilar | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;method=artist.getsimilar&amp;artist=Yuki+Kajiura
-   [LastFM] request: artist.getTopTracks | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;method=artist.getTopTracks&amp;artist=Kalafina
-    --&gt; Kalafina/2009 - Seventh Heaven/Kalafina - 02 - Seventh Heaven - oblivious.mp3
-   [LastFM] request: artist.getTopTracks | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;method=artist.getTopTracks&amp;artist=%E5%B2%A9%E5%B4%8E%E7%90%A2
-    --&gt; Unsorted_Music/Soundtracks/Gurren Lagann/天元突破グレンラガン ベストサウンド Soundtrack Disc/天元突破グレンラガン ベストサウンド Soundtrack Disc - 07 - Nikopol.mp3
-   [LastFM] request: artist.getTopTracks | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;method=artist.getTopTracks&amp;artist=Makino+Yui
-    --&gt; Soundtracks/NHK ni Youkoso! OST (Sunny Side ni Youkoso)/NHK ni Youkoso! OST (Sunny Side ni Youkoso) - 23 - Modokashii Sekai no Ue de -piano ver.-.mp3
-
-:: Search similar track [Kalafina - oblivious]
-   [LastFM] request: track.getsimilar | url: http://ws.audioscrobbler.com/2.0/?api_key=b25b959554ed76058ac220b7b2e0a026&amp;track=oblivious&amp;method=track.getsimilar&amp;artist=Kalafina
-    --&gt; Kalafina/2009 - Seventh Heaven/Kalafina - 06 - Seventh Heaven - ARIA.mp3
-    --&gt; Kalafina/2009 - Seventh Heaven/Kalafina - 12 - Seventh Heaven - sprinter.mp3
-    --&gt; Unsorted_Music/Soundtracks/Phantom ~Requiem for the Phantom~/Vol. 1/32 - KARMA (TV edit).mp3
-</pre>
-
+		<h2>Configuration file</h2>
 		<p>
-			Note that you will have to wait at least 20% of the
-			current song being played before you get something.
+			Configuration file is located in <i>$HOME/.config/dynampd.conf</i> and is optional.
+			Possible options are:
+			<ul>
+				<li><b>host</b> (default: <i>localhost</i>)</li>
+				<li><b>password</b></li>
+				<li><b>port</b> (default: <i>6600</i>)</li>
+				<li><b>quiet</b> (default: <i>False</i>)</li>
+				<li><b>max_songs</b> (default: <i>3</i>)</li>
+				<li><b>wait</b> (default: <i>20</i>%)</li>
+			</ul>
 		</p>
-
-		<h2>Contact developers</h2>
+		<p>Example of config file:</p>
+<pre>% cat ~/.config/dynampd.conf
+host = lucy
+password = nyu
+wait = 30
+</pre>
+		<h2>Developers</h2>
 		<p>
 			The best way to contact us is to use IRC:
 			#/dev/null@yozora-irc.net (ask for <i>ubitux</i> or <i>Amak</i>).
@@ -88,13 +86,5 @@ Options:
 			<i>what the fuck you want to</i> with dynaMPD since it's under
 			<a href="http://sam.zoy.org/wtfpl/">WTFPL</a> license.
 		</p>
-
-		<h2>TODO ideas</h2>
-		<ul>
-			<li>Add config file</li>
-			<li>Add some random in selection</li>
-			<li>Do not add the <i>n</i> versions of a given track</li>
-			<li>Handle connection timeout or any kind of crashes</li>
-		</ul>
 	</body>
 </html>
