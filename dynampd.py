@@ -187,7 +187,7 @@ class Core(mpd.MPDClient):
                         try:
                             for fname in dynampd.get_a_selection(artist, title):
                                 self.add(fname)
-                        except ParseError:
+                        except (ParseError, IOError):
                             prev = (None, None)
                             print 'Error: unable to parse Last.FM DOM. retry in 5 seconds'
                 time.sleep(5)
