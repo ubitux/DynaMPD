@@ -39,7 +39,7 @@ class DynaMPD:
             return selection
 
         def split_artists(artists):
-            return [artists] + [a.strip() for a in re.split(r'(?i),|feat[^ ]*|&', artists)]
+            return list(set([artists] + [a.strip() for a in re.split(r'(?i),|feat[^ ]*|&', artists)]))
 
         playlist = self.mpd_client.playlist()
         selection = []
