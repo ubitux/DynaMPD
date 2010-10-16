@@ -75,8 +75,10 @@ class DynaMPD:
                     continue
 
                 doc_toptracks = self._api_request({'method': 'artist.getTopTracks', 'artist': artist})
-                track = doc_toptracks.getElementsByTagName('track')[0]
-                title = track.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
+                track = doc_toptracks.getElementsByTagName('track')
+                if not track:
+                    continue
+                title = track[0].getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
                 songs = self.mpd_client.search('artist', artist, 'title', title)
                 if self._add_one_song_to_selection(songs, playlist, selection) >= self.max_selection_len:
                     return sel_ok(selection)
