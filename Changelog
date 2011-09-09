@@ -1,3 +1,11 @@
+Version 1.1.0	xx xxx xxxx
+
+	* Better XDG_CONFIG_HOME support
+	* Fix adding multiple times the same song
+	* Switch Last.FM API format from XML to JSON
+	* Support multiple artists entries
+	* Various bug fixes
+
 Version 1.0.1	23 Sep 2010
 
 	* Fix traceback when missing config file
