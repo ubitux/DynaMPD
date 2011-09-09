@@ -49,19 +49,24 @@ class DynaMPD:
         self._log(':: Search similar track [%s - %s]' % (playing_artist, playing_track))
 
         doc = self._api_request({'method': 'track.getsimilar', 'artist': playing_artist, 'track': self._cleanup_track_title(playing_track)})
-        for node in doc.get('similartracks', {}).get('track', []):
-            artist = node.get('artist', {}).get('name').encode('utf-8', 'replace')
-            title  = node.get('name').encode('utf-8', 'replace')
-            if None in (title, artist):
-                continue
+        similartracks = doc.get('similartracks', {}).get('track')
+        if isinstance(similartracks, list):
+            for node in similartracks:
+                artist = node.get('artist', {}).get('name').encode('utf-8', 'replace')
+                title  = node.get('name').encode('utf-8', 'replace')
+                if None in (title, artist):
+                    continue
 
-            songs = self.mpd_client.search('artist', artist, 'title', title)
-            if self._add_one_song_to_selection(songs, playlist, selection) >= self.max_selection_len:
-                return sel_ok(selection)
+                songs = self.mpd_client.search('artist', artist, 'title', title)
+                if self._add_one_song_to_selection(songs, playlist, selection) >= self.max_selection_len:
+                    return sel_ok(selection)
 
         for sub_artist in split_artists(playing_artist):
             doc = self._api_request({'method': 'artist.getsimilar', 'artist': sub_artist})
-            for node in doc.get('similarartists', {}).get('artist', []):
+            similarartists = doc.get('similarartists', {}).get('artist')
+            if not isinstance(similarartists, list):
+                continue
+            for node in similarartists:
                 artist = node.get('name').encode('utf-8', 'replace')
                 if not self.mpd_client.search('artist', artist):
                     self._log('No artist matching [%s] in database' % artist)
