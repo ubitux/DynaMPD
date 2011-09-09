@@ -107,9 +107,8 @@ class DynaMPD:
         return sim
 
     def _add_one_song_to_selection(self, songs, playlist, selection):
-        sel_len = len(selection)
         if not songs:
-            return sel_len
+            return len(selection)
         for song in songs:
             artist = song.get('artist')
             title  = song.get('title')
@@ -124,8 +123,8 @@ class DynaMPD:
                 continue
             self._log('    → %s' % fname)
             selection.append(fname)
-            return sel_len + 1
-        return sel_len
+            break
+        return len(selection)
 
     def _api_request(self, data):
         url = '%s?api_key=%s&format=json&%s' % (self._api_root_url, self._api_key, urllib.urlencode(data))
