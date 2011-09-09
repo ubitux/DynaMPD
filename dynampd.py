@@ -109,7 +109,8 @@ class DynaMPD:
             artist = song.get('artist')
             title  = song.get('title')
             fname  = song['file']
-            if not artist or not title or fname in playlist + selection:
+            fullpl = playlist + selection
+            if not artist or not title or 'file: %s' % fname in fullpl or fname in fullpl:
                 continue
             score     = self._get_similitude_score(artist, title)
             min_score = sum(self._sim_scores.values())
