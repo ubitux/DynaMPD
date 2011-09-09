@@ -18,14 +18,14 @@
 
 import mpd, time, urllib, re, random, json
 
-__author__ = 'ubitux and Amak'
+__author__  = 'ubitux and Amak'
 __version__ = '1.0.1'
 
 class DynaMPD:
 
-    _api_key = 'b25b959554ed76058ac220b7b2e0a026'
+    _api_key      = 'b25b959554ed76058ac220b7b2e0a026'
     _api_root_url = 'http://ws.audioscrobbler.com/2.0/'
-    _sim_scores = {'title': 4, 'artist': 1}
+    _sim_scores   = {'title': 4, 'artist': 1}
 
     def __init__(self, mpd_client):
         self.mpd_client = mpd_client
@@ -40,7 +40,7 @@ class DynaMPD:
         def split_artists(artists):
             return list(set([artists] + [a.strip() for a in re.split(r'(?i),|feat[^ ]*|&', artists)]))
 
-        playlist = self.mpd_client.playlist()
+        playlist  = self.mpd_client.playlist()
         selection = []
 
         if isinstance(playing_artist, list):
@@ -87,14 +87,14 @@ class DynaMPD:
             return ', '.join((a.lower() for a in artist)) if isinstance(artist, list) else artist.lower()
 
         artist = simplify_artists(artist)
-        title = self._cleanup_track_title(title)
+        title  = self._cleanup_track_title(title)
         plinfo = self.mpd_client.playlistinfo()
         sim = 0
         for song in plinfo:
             if not 'artist' in song or not 'title' in song:
                 continue
             tmp_artist = simplify_artists(song['artist'])
-            tmp_title = self._cleanup_track_title(song['title'])
+            tmp_title  = self._cleanup_track_title(song['title'])
             if tmp_artist in artist or artist in tmp_artist:
                 sim += self._sim_scores['artist']
             if title in tmp_title or tmp_title in title:
@@ -107,11 +107,11 @@ class DynaMPD:
             return sel_len
         for song in songs:
             artist = song.get('artist')
-            title = song.get('title')
-            fname = song['file']
+            title  = song.get('title')
+            fname  = song['file']
             if not artist or not title or fname in playlist + selection:
                 continue
-            score = self._get_similitude_score(artist, title)
+            score     = self._get_similitude_score(artist, title)
             min_score = sum(self._sim_scores.values())
             max_score = min_score * 3
             if score > random.randint(min_score, max_score):
