@@ -37,14 +37,12 @@ class DynaMPD:
             self._log('')
             return selection
 
-        def split_artists(artists):
-            return list(set([artists] + [a.strip() for a in re.split(r'(?i),|feat[^ ]*|&', artists)]))
-
         playlist  = self.mpd_client.playlist()
         selection = []
 
         if isinstance(playing_artist, list):
             playing_artist = ', '.join(playing_artist)
+        splitted_artists = list(set([playing_artist] + [a.strip() for a in re.split(r'(?i),|feat[^ ]*|&', playing_artist)]))
 
         self._log(':: Search similar track [%s - %s]' % (playing_artist, playing_track))
 
@@ -62,7 +60,7 @@ class DynaMPD:
                     return sel_ok(selection)
 
         # Check for top songs of similar artists
-        for sub_artist in split_artists(playing_artist):
+        for sub_artist in splitted_artists:
             doc = self._api_request({'method': 'artist.getsimilar', 'artist': sub_artist})
             similarartists = doc.get('similarartists', {}).get('artist')
             if not isinstance(similarartists, list):
