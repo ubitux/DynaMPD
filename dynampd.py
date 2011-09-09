@@ -137,8 +137,6 @@ class DynaMPD:
 
 class Core(mpd.MPDClient):
 
-    _config_file = '~/.config/dynampd.conf'
-
     def __init__(self):
         import os, optparse, ConfigParser
         from StringIO import StringIO
@@ -147,7 +145,8 @@ class Core(mpd.MPDClient):
 
         config = ConfigParser.RawConfigParser()
         try:
-            cfile = open(os.path.expanduser(self._config_file), 'r')
+            fname = os.path.join(os.environ.get('XDG_CONFIG_HOME', '~/.config'), 'dynampd.conf')
+            cfile = open(os.path.expanduser(fname), 'r')
             config.readfp(StringIO('[s]\n' + cfile.read()))
         except IOError:
             cfile = None
