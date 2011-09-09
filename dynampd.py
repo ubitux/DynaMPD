@@ -19,7 +19,7 @@
 import mpd, time, urllib, re, random, json
 
 __author__  = 'ubitux and Amak'
-__version__ = '1.0.1'
+__version__ = '1.1.0'
 
 class DynaMPD:
 
