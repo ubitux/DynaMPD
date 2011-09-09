@@ -16,8 +16,7 @@
 #   0. You just DO WHAT THE FUCK YOU WANT TO.
 #
 
-import mpd, time, urllib, xml.dom.minidom, re, random
-from xml.parsers.expat import ExpatError as ParseError
+import mpd, time, urllib, re, random, json
 
 __author__ = 'ubitux and Amak'
 __version__ = '1.0.1'
@@ -50,14 +49,9 @@ class DynaMPD:
         self._log(':: Search similar track [%s - %s]' % (playing_artist, playing_track))
 
         doc = self._api_request({'method': 'track.getsimilar', 'artist': playing_artist, 'track': self._cleanup_track_title(playing_track)})
-        for node in doc.getElementsByTagName('track'):
-
-            title, artist = None, None
-            for name in node.getElementsByTagName('name'):
-                if name.parentNode == node:
-                    title = name.firstChild.data.encode('utf-8', 'ignore')
-                else:
-                    artist = name.firstChild.data.encode('utf-8', 'ignore')
+        for node in doc.get('track', []):
+            artist = node.get('artist', {}).get('name')
+            title  = node.get('name')
             if None in (title, artist):
                 continue
 
@@ -67,18 +61,17 @@ class DynaMPD:
 
         for sub_artist in split_artists(playing_artist):
             doc = self._api_request({'method': 'artist.getsimilar', 'artist': sub_artist})
-            for node in doc.getElementsByTagName('artist'):
-                artist = node.getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
-
+            for node in doc.get('similarartists', {}).get('artist', []):
+                artist = node.get('name')
                 if not self.mpd_client.search('artist', artist):
                     self._log('No artist matching [%s] in database' % artist)
                     continue
 
                 doc_toptracks = self._api_request({'method': 'artist.getTopTracks', 'artist': artist})
-                track = doc_toptracks.getElementsByTagName('track')
+                track = doc_toptracks.get('track')
                 if not track:
                     continue
-                title = track[0].getElementsByTagName('name')[0].firstChild.data.encode('utf-8', 'ignore')
+                title = track[0].get('name')
                 songs = self.mpd_client.search('artist', artist, 'title', title)
                 if self._add_one_song_to_selection(songs, playlist, selection) >= self.max_selection_len:
                     return sel_ok(selection)
@@ -129,9 +122,9 @@ class DynaMPD:
         return sel_len
 
     def _api_request(self, data):
-        url = self._api_root_url + '?api_key=' + self._api_key + '&' + urllib.urlencode(data)
+        url = '%s?api_key=%s&format=json&%s' % (self._api_root_url, self._api_key, urllib.urlencode(data))
         self._log('   [LastFM] request: %s | url: %s' % (data['method'], url))
-        return xml.dom.minidom.parse(urllib.urlopen(url))
+        return json.load(urllib.urlopen(url))
 
     def _log(self, msg):
         if self.mpd_client.verbose:
@@ -197,9 +190,9 @@ class Core(mpd.MPDClient):
                         try:
                             for fname in dynampd.get_a_selection(artist, title):
                                 self.add(fname)
-                        except (ParseError, IOError):
+                        except ValueError, e:
                             prev = (None, None)
-                            print 'Error: unable to parse Last.FM DOM. retry in 5 seconds'
+                            print 'Error: unable to parse Last.FM JSON ("%s"). retry in 5 seconds' % e
                 time.sleep(5)
         except KeyboardInterrupt:
             if self.verbose:
