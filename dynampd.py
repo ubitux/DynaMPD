@@ -49,7 +49,7 @@ class DynaMPD:
         self._log(':: Search similar track [%s - %s]' % (playing_artist, playing_track))
 
         doc = self._api_request({'method': 'track.getsimilar', 'artist': playing_artist, 'track': self._cleanup_track_title(playing_track)})
-        for node in doc.get('track', []):
+        for node in doc.get('similartracks', {}).get('track', []):
             artist = node.get('artist', {}).get('name').encode('utf-8', 'replace')
             title  = node.get('name').encode('utf-8', 'replace')
             if None in (title, artist):
@@ -68,7 +68,7 @@ class DynaMPD:
                     continue
 
                 doc_toptracks = self._api_request({'method': 'artist.getTopTracks', 'artist': artist})
-                track = doc_toptracks.get('track')
+                track = doc_toptracks.get('toptracks', {}).get('track')
                 if not track:
                     continue
                 title = track[0].get('name').encode('utf-8', 'replace')
