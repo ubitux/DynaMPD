@@ -70,14 +70,16 @@ class DynaMPD:
                 if not self.mpd_client.search('artist', artist):
                     self._log('No artist matching [%s] in database' % artist)
                     continue
-                doc_toptracks = self._api_request({'method': 'artist.getTopTracks', 'artist': artist})
+                doc_toptracks = self._api_request({'method': 'artist.getTopTracks', 'artist': artist, 'limit': 20})
                 toptracks = doc_toptracks.get('toptracks', {}).get('track')
                 if not isinstance(toptracks, list) or not toptracks:
                     continue
-                title = toptracks[0].get('name').encode('utf-8', 'replace')
-                songs = self.mpd_client.search('artist', artist, 'title', title)
-                if self._add_one_song_to_selection(songs, playlist, selection) >= self.max_selection_len:
-                    return sel_ok(selection)
+                random.shuffle(toptracks)
+                for toptrack in toptracks:
+                    title = toptrack.get('name').encode('utf-8', 'replace')
+                    songs = self.mpd_client.search('artist', artist, 'title', title)
+                    if self._add_one_song_to_selection(songs, playlist, selection) >= self.max_selection_len:
+                        return sel_ok(selection)
 
         return sel_ok(selection)
 
