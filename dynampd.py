@@ -43,6 +43,7 @@ class DynaMPD:
         if isinstance(playing_artist, list):
             playing_artist = ', '.join(playing_artist)
         splitted_artists = list(set([playing_artist] + [a.strip() for a in re.split(r'(?i),|feat[^ ]*|&|;', playing_artist)]))
+        random.shuffle(splitted_artists)
 
         self._log(':: Search similar track [%s - %s]' % (playing_artist, playing_track))
 
