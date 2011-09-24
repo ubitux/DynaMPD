@@ -204,4 +204,11 @@ class Core(mpd.MPDClient):
                 print 'Dynampd %s is now quitting...' % (__version__ )
 
 if __name__ == '__main__':
-    Core().run()
+    while True:
+        try:
+            Core().run()
+        except IOError, e:
+            print 'I/O Error while requesting Last.FM. Retrying in 20 seconds'
+            time.sleep(20)
+        else:
+            break
