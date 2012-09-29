@@ -1,3 +1,7 @@
+Version Next
+
+	* support MPD_HOST and MPD_PORT environment variables
+
 Version 1.1.0	9 Sep 2011
 
 	* Better XDG_CONFIG_HOME support
