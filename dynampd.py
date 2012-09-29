@@ -144,6 +144,18 @@ class Core(mpd.MPDClient):
 
         mpd.MPDClient.__init__(self)
 
+        env_host = os.environ.get('MPD_HOST', 'localhost')
+        if '@' in env_host:
+            env_pass, env_host = env_host.split('@', 1)
+        else:
+            env_pass = None
+
+        env_port = os.environ.get('MPD_PORT', None)
+        try:
+            env_port = int(env_port)
+        except (TypeError, ValueError):
+            env_port = 6600
+
         config = ConfigParser.RawConfigParser()
         try:
             fname = os.path.join(os.environ.get('XDG_CONFIG_HOME', '~/.config'), 'dynampd.conf')
@@ -151,9 +163,9 @@ class Core(mpd.MPDClient):
             config.readfp(StringIO('[s]\n' + cfile.read()))
         except IOError:
             cfile = None
-        cfg_host  = config.get('s', 'host')         if config.has_option('s', 'host')       else 'localhost'
-        cfg_pass  = config.get('s', 'password')     if config.has_option('s', 'password')   else None
-        cfg_port  = config.getint('s', 'port')      if config.has_option('s', 'port')       else 6600
+        cfg_host  = config.get('s', 'host')         if config.has_option('s', 'host')       else env_host
+        cfg_pass  = config.get('s', 'password')     if config.has_option('s', 'password')   else env_pass
+        cfg_port  = config.getint('s', 'port')      if config.has_option('s', 'port')       else env_port
         cfg_quiet = config.getboolean('s', 'quiet') if config.has_option('s', 'quiet')      else False
         cfg_msong = config.getint('s', 'max_songs') if config.has_option('s', 'max_songs')  else 3
         cfg_wait  = config.getint('s', 'wait')      if config.has_option('s', 'wait')       else 20
